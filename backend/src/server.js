@@ -1,0 +1,98 @@
+const express = require("express");
+const dotenv = require("dotenv").config();
+const sequelize = require("sequelize");
+const app = express();
+
+const PORT = 8080;
+
+
+const loans = async () => {
+    let rtn = [];
+    let page = 1;
+    let response = await fetch('https://api.open.fec.gov/v1/schedules/schedule_c/?min_amount=10000&page=1&per_page=100&sort=-incurred_date&sort_hide_null=true&sort_null_only=false&sort_nulls_last=true&api_key=mpes9XAfrLNioHVlF4mMflhFi1Kd8kfuZAiI4CFC');
+    let data = await response.json();
+    while (data.results && data.results.length > 0) {
+        rtn.push(data.results);
+        page += 1;
+        response = await fetch(`https://api.open.fec.gov/v1/schedules/schedule_c/?min_amount=10000&page=${page}&per_page=100&sort=-incurred_date&sort_hide_null=true&sort_null_only=false&sort_nulls_last=true&api_key=mpes9XAfrLNioHVlF4mMflhFi1Kd8kfuZAiI4CFC`);
+        data = await response.json();
+    }
+    return rtn;
+};
+
+app.get('/loans', async (req, res) => {
+    const data = await loans();
+    res.json(data);
+});
+
+// Helper function to build query parameters
+const buildQueryParams = (params) => {
+    return Object.keys(params)
+      .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
+      .join('&');
+};
+
+const API_KEY = process.env.API_KEY;
+const base_url = process.env.base_url;
+const presidential_endpoint = process.env.presidential;
+
+const presidential = async () => {
+    const queryParams = buildQueryParams({
+        api_key: API_KEY,
+        page: 1,
+        per_page: 100,
+        election_year: 2024,
+        contributor_state: 'NC',
+        sort: '-net_receipts',
+        sort_hide_null: false,
+        sort_null_only: false,
+        sort_nulls_last: false,
+    });
+
+    let response = await fetch(`${base_url}${presidential_endpoint}/?${queryParams}`);
+    let data = await response.json();
+    return data;
+}
+
+app.get('/presidential', async (req, res) => {
+    res.send(await presidential());
+});
+
+
+
+
+
+
+const { MongoClient, ServerApiVersion } = require('mongodb');
+const uri = "mongodb+srv://zeeshawnahasnain:fgehXrHvN1Jzncqx@cluster0.u3t6l.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
+});
+
+async function run() {
+  try {
+    // Connect the client to the server	(optional starting in v4.7)
+    await client.connect();
+    // Send a ping to confirm a successful connection
+    await client.db("admin").command({ ping: 1 });
+    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+  } finally {
+    // Ensures that the client will close when you finish/error
+    await client.close();
+  }
+}
+run().catch(console.dir);
+
+
+
+
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
+
