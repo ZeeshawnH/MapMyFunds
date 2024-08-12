@@ -1,12 +1,22 @@
-import { Document, Schema, model } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-export interface ICandidate extends Document {
-    candidate_id: string;
-    [key: string]: any;
-}
+// export interface ICandidate extends Document {
+//   candidate_id: string;
+//   [key: string]: any;
+// }
 
-const candidateSchema = new Schema<ICandidate>({
-    candidate_id: {type: String, required: true, unique: true},
-}, {strict: false});
+const contributionSchema = new mongoose.Schema({
+  candidate_id: { type: String, required: true, unique: true },
+  candidate_last_name: String,
+  candidate_party_affiliation: String,
+  contributor_state: String,
+  contributions: [
+    {
+      election_year: Number,
+      net_receipts: Number,
+      rounded_net_receipts: Number,
+    },
+  ],
+});
 
-export const Candidate = model<ICandidate>('Candidate', candidateSchema);
+export const Candidate = mongoose.model("Candidate", contributionSchema);
