@@ -9,9 +9,9 @@ const contributionSchema = new mongoose.Schema({
   candidate_id: { type: String, required: true, unique: true },
   candidate_last_name: String,
   candidate_party_affiliation: String,
-  contributor_state: String,
   contributions: [
     {
+      contributor_state: String,
       election_year: Number,
       net_receipts: Number,
       rounded_net_receipts: Number,

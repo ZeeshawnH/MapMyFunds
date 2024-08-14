@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import bodyParser from "body-parser";
 import axios from "axios";
 import dotenv from "dotenv";
+import cors from "cors";
 // import cron from "node-cron";
 import { Candidate, ICandidate } from "./models/Candidate";
 import candidateRoutes from "./routes/candidate";
@@ -16,6 +17,12 @@ const PORT = 8080;
 
 app.use(bodyParser.json());
 app.use(express.json());
+
+app.use(
+  cors({
+    origin: "http://localhost:3000", // Allow requests from the frontend port
+  })
+);
 
 const loans = async () => {
   let rtn = [];

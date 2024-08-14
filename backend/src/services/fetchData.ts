@@ -36,10 +36,10 @@ export const fetchContributionsData = async () => {
               candidate_last_name: contribution.candidate_last_name,
               candidate_party_affiliation:
                 contribution.candidate_party_affiliation,
-              contributor_state: contribution.contributor_state,
             },
             $push: {
               contributions: {
+                contributor_state: contribution.contributor_state,
                 election_year: contribution.election_year,
                 net_receipts: contribution.net_receipts,
                 rounded_net_receipts: contribution.rounded_net_receipts,
