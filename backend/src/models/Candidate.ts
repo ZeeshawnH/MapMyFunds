@@ -1,11 +1,12 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, model, Document } from "mongoose";
 
-// export interface ICandidate extends Document {
-//   candidate_id: string;
-//   [key: string]: any;
-// }
+export interface IContribution {
+  election_year: number;
+  net_receipts: number;
+  rounded_net_receipts: number;
+}
 
-const contributionSchema = new mongoose.Schema({
+const candidateSchema = new Schema({
   candidate_id: { type: String, required: true, unique: true },
   candidate_last_name: String,
   candidate_party_affiliation: String,
@@ -19,4 +20,4 @@ const contributionSchema = new mongoose.Schema({
   ],
 });
 
-export const Candidate = mongoose.model("Candidate", contributionSchema);
+export const Candidate = model("Candidate", candidateSchema);

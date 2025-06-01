@@ -4,12 +4,13 @@ import dynamic from "next/dynamic";
 import { MapContainer, TileLayer, GeoJSON, Tooltip } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import axios from "axios";
+import usstates from "@/public/us-states.json";
 
 // Dynamically import leaflet without server-side rendering
 const Map = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
 
 // Example GeoJSON data for US states
-const USStatesGeoJSON = "@/public/us-states.json"; // You should replace this with your GeoJSON data
+const USStatesGeoJSON: GeoJSON.Feature = usstates; // You should replace this with your GeoJSON data
 
 const MapComponent = () => {
   const [stateData, setStateData] = useState<{ [key: string]: number }>({});
