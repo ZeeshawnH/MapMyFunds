@@ -1,27 +1,80 @@
 package aggregator
 
 import (
-	"elections-backend/openfec"
+	"backend/openfec"
+	"fmt"
 )
 
-type FECResult = openfec.FECResult
+type CandidateStats struct {
+	CandidateID   string
+	CandidateName string
+	TotalAmount   float64
+	ElectionYear  int
+}
 
-// AggregateContributions aggregates contributions by state and returns a map of state to total contributions.
-func TopCandidatesByState(contributions []openfec.FECResult) (map[string][]openfec.FECResult, error) {
-	states := make(map[string][]FECResult)
-
-	for _, contribution := range contributions {
-		if contribution.ContributionState == "" {
-			continue // Skip contributions without a state
-		}
-
-		// Initialize the state if it doesn't exist
-		if _, exists := states[contribution.ContributionState]; !exists {
-			states[contribution.ContributionState] = []FECResult{}
-		}
-
-		states[contribution.ContributionState] = append(states[contribution.ContributionState], contribution)
+func FetchContributionAmountByStateAndCandidate() (map[string][]openfec.CandidateContribution, error) {
+	var stateMap = map[string][]openfec.CandidateContribution{
+		"AL": {},
+		"AK": {},
+		"AZ": {},
+		"AR": {},
+		"CA": {},
+		"CO": {},
+		"CT": {},
+		"DE": {},
+		"FL": {},
+		"GA": {},
+		"HI": {},
+		"ID": {},
+		"IL": {},
+		"IN": {},
+		"IA": {},
+		"KS": {},
+		"KY": {},
+		"LA": {},
+		"ME": {},
+		"MD": {},
+		"MA": {},
+		"MI": {},
+		"MN": {},
+		"MS": {},
+		"MO": {},
+		"MT": {},
+		"NE": {},
+		"NV": {},
+		"NH": {},
+		"NJ": {},
+		"NM": {},
+		"NY": {},
+		"NC": {},
+		"ND": {},
+		"OH": {},
+		"OK": {},
+		"OR": {},
+		"PA": {},
+		"RI": {},
+		"SC": {},
+		"SD": {},
+		"TN": {},
+		"TX": {},
+		"UT": {},
+		"VT": {},
+		"VA": {},
+		"WA": {},
+		"WV": {},
+		"WI": {},
+		"WY": {},
+		"DC": {},
 	}
 
-	return states, nil
+	for state := range stateMap {
+		contributions, err := openfec.GetContributions(2024)
+		if err != nil {
+			return nil, fmt.Errorf("Failed to fetch contributions from FEC service: %s", err)
+		}
+
+		stateMap[state] = contributions
+	}
+
+	return stateMap, nil
 }

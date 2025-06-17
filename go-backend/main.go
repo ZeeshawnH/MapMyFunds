@@ -1,34 +1,33 @@
 package main
 
 import (
-	"elections-backend/aggregator"
-	"elections-backend/openfec"
-	"fmt"
+	"log"
 	"net/http"
 
+	"backend/openfec"
+
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	gin.SetMode(gin.ReleaseMode)
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
-	http.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
-		contributions, err := openfec.FetchContributionsByState()
+	router := gin.Default()
+
+	// Simple get request
+	router.GET("/ping", func(c *gin.Context) {
+		resp, err := openfec.GetContributions(2024)
 		if err != nil {
-			http.Error(w, "Failed to fetch contributions", http.StatusInternalServerError)
-			return
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
 		}
-
-		topCandidates, err := aggregator.TopCandidatesByState(contributions)
-		if err != nil {
-			http.Error(w, "Failed to aggregate contributions", http.StatusInternalServerError)
-			return
-		}
-
-		fmt.Fprintln(w, topCandidates)
-		fmt.Println("Received a ping request")
+		c.JSON(http.StatusOK, resp)
 	})
 
-	fmt.Println("Server running on http://localhost:8080")
-	http.ListenAndServe(":8080", nil)
+	router.Run(":8080")
+
 }
