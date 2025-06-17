@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"backend/openfec"
+	"backend/aggregator"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -17,9 +17,9 @@ func main() {
 
 	router := gin.Default()
 
-	// Simple get request
-	router.GET("/ping", func(c *gin.Context) {
-		resp, err := openfec.GetContributions(2024)
+	// Get request for contributions by state
+	router.GET("/api/contributions", func(c *gin.Context) {
+		resp, err := aggregator.FetchContributionAmountByStateAndCandidate()
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": err.Error(),
