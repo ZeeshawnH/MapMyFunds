@@ -1,7 +1,7 @@
 package aggregator
 
 import (
-	"backend/openfec"
+	"backend/db"
 	"fmt"
 )
 
@@ -12,8 +12,8 @@ type CandidateStats struct {
 	ElectionYear  int
 }
 
-func FetchContributionAmountByStateAndCandidate() (map[string][]openfec.CandidateContribution, error) {
-	var stateMap = map[string][]openfec.CandidateContribution{
+func FetchContributionAmountByStateAndCandidate() (map[string][]db.Contribution, error) {
+	var stateMap = map[string][]db.Contribution{
 		"AL": {},
 		"AK": {},
 		"AZ": {},
@@ -67,10 +67,15 @@ func FetchContributionAmountByStateAndCandidate() (map[string][]openfec.Candidat
 		"DC": {},
 	}
 
+	client, err := db.ConnectDB()
+	if err != nil {
+		return nil, err
+	}
+
 	for state := range stateMap {
-		contributions, err := openfec.GetContributions(2024)
+		contributions, err := db.GetContributionsByStateAndYear(client, 2024, state)
 		if err != nil {
-			return nil, fmt.Errorf("Failed to fetch contributions from FEC service: %s", err)
+			return nil, fmt.Errorf("failed to fetch contributions from db: %s", err)
 		}
 
 		stateMap[state] = contributions
