@@ -10,4 +10,5 @@ export type TooltipData = {
   x: number;
   y: number;
   name: string;
+  stateCode: string;
 } | null;

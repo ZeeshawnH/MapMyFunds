@@ -33,5 +33,6 @@
 .statePath:hover {
   stroke-width: 2px;
   filter: brightness(1.2);
-  fill: #dadada;
+  stroke: #000;
+  /* fill: #dadada; */
 }

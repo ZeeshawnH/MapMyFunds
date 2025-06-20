@@ -2,6 +2,7 @@ import type { Feature, Geometry } from "geojson";
 import type { Dispatch, SetStateAction } from "react";
 import type { TooltipData } from "../../types/map";
 import * as d3 from "d3";
+import { numericToStateCode } from "../constants/stateConstants";
 
 /**
  * Helper to get state name from GeoJSON properties
@@ -37,10 +38,15 @@ export const handleMouseHover = (
 ) => {
   d3.select(element);
   const [x, y] = d3.pointer(event, svg.node());
+  const stateCode =
+    d.properties && typeof d.properties.STATE !== "undefined"
+      ? numericToStateCode[d.properties.STATE]
+      : "";
   onSetTooltip({
     x,
     y,
     name: getStateName(d.properties),
+    stateCode,
   });
 };
 
@@ -58,10 +64,15 @@ export const handleMouseMove = (
   onSetTooltip: Dispatch<SetStateAction<TooltipData>>
 ) => {
   const [x, y] = d3.pointer(event, svg.node());
+  const stateCode =
+    d.properties && typeof d.properties.STATE !== "undefined"
+      ? numericToStateCode[d.properties.STATE]
+      : "";
   onSetTooltip({
     x,
     y,
     name: getStateName(d.properties),
+    stateCode,
   });
 };
 

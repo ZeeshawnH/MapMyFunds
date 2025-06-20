@@ -1,7 +1,6 @@
-import {
+import type {
   Contribution,
   StateContributions,
-  Candidate,
 } from "../../types/contributions";
 import { candidateInfo } from "../constants/candidateConstants";
 
@@ -12,36 +11,44 @@ export const processContributions = (
 
   // Group by state
   data.forEach((contribution) => {
-    const { contribution_state, candidate_id, contribution_receipt_amount } =
-      contribution;
-    const candidate = candidateInfo[candidate_id];
+    const {
+      CandidateID,
+      CandidateName,
+      CandidateParty,
+      ContributorState,
+      ElectionYear,
+      NetReceipts,
+    } = contribution;
+    const candidate = candidateInfo[CandidateID];
 
     if (!candidate) return; // Skip if we don't have candidate info
 
-    if (!stateData[contribution_state]) {
-      stateData[contribution_state] = [];
+    if (!stateData[ContributorState]) {
+      stateData[ContributorState] = [];
     }
 
     // Find if candidate already exists in state
-    const existingCandidate = stateData[contribution_state].find(
-      (c) => c.candidate_id === candidate_id
+    const existingCandidate = stateData[ContributorState].find(
+      (c) => c.CandidateID === CandidateID
     );
 
     if (existingCandidate) {
-      existingCandidate.total_amount += contribution_receipt_amount;
+      existingCandidate.NetReceipts += NetReceipts;
     } else {
-      stateData[contribution_state].push({
-        candidate_id,
-        candidate_last_name: candidate.last_name,
-        candidate_party_affiliation: candidate.party,
-        total_amount: contribution_receipt_amount,
+      stateData[ContributorState].push({
+        CandidateID,
+        CandidateName,
+        CandidateParty,
+        ContributorState,
+        ElectionYear,
+        NetReceipts,
       });
     }
   });
 
   // Sort candidates by total amount in each state
   Object.keys(stateData).forEach((state) => {
-    stateData[state].sort((a, b) => b.total_amount - a.total_amount);
+    stateData[state].sort((a, b) => b.NetReceipts - a.NetReceipts);
   });
 
   return stateData;
