@@ -1,15 +1,31 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"net/http"
+	"os"
 
 	"backend/aggregator"
 	"backend/db"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
+
+var debugMode bool
+
+func init() {
+	flag.BoolVar(&debugMode, "debug", false, "Enable debug mode")
+	flag.Parse()
+
+	if debugMode {
+		gin.SetMode(gin.DebugMode)
+	} else {
+		gin.SetMode(os.Getenv("GIN_MODE"))
+	}
+}
 
 func main() {
 	if err := godotenv.Load(); err != nil {
@@ -17,6 +33,12 @@ func main() {
 	}
 
 	router := gin.Default()
+	router.Use(cors.Default())
+
+	client, err := db.ConnectDB()
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
 
 	// Get request for contributions by state
 	router.GET("/api/contributions", func(c *gin.Context) {
@@ -29,7 +51,6 @@ func main() {
 		c.JSON(http.StatusOK, resp)
 	})
 
-	client, err := db.ConnectDB()
 	// Get request for contributions by state and year
 	router.GET("/api/contributions/byState", func(c *gin.Context) {
 		resp, err := db.GetContributionsByStateAndYear(client, 2024, "NC")
@@ -39,11 +60,6 @@ func main() {
 		}
 		c.JSON(http.StatusOK, resp)
 	})
-
-	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
-	}
-	db.PopulateDatabase(client)
 
 	router.Run(":8080")
 
