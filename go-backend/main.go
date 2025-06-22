@@ -17,6 +17,10 @@ import (
 var debugMode bool
 
 func init() {
+	if err := godotenv.Load(); err != nil {
+		log.Printf("Warning: Error loading .env file: %v", err)
+	}
+
 	flag.BoolVar(&debugMode, "debug", false, "Enable debug mode")
 	flag.Parse()
 
@@ -28,10 +32,6 @@ func init() {
 }
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
 	router := gin.Default()
 	router.Use(cors.Default())
 
@@ -62,5 +62,4 @@ func main() {
 	})
 
 	router.Run(":8080")
-
 }
