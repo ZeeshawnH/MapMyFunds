@@ -39,8 +39,10 @@ export const handleMouseHover = (
   d3.select(element);
   const [x, y] = d3.pointer(event, svg.node());
   const stateCode =
-    d.properties && typeof d.properties.STATE !== "undefined"
-      ? numericToStateCode[d.properties.STATE]
+    d.properties && 
+    d.properties.STATE &&
+    typeof d.properties.STATE !== "undefined"
+      ? numericToStateCode[d.properties.STATE as string]
       : "";
   onSetTooltip({
     x,
@@ -65,8 +67,10 @@ export const handleMouseMove = (
 ) => {
   const [x, y] = d3.pointer(event, svg.node());
   const stateCode =
-    d.properties && typeof d.properties.STATE !== "undefined"
-      ? numericToStateCode[d.properties.STATE]
+    d.properties && 
+    d.properties.STATE &&
+    typeof d.properties.STATE !== "undefined"
+      ? numericToStateCode[d.properties.STATE as string]
       : "";
   onSetTooltip({
     x,

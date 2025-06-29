@@ -1,55 +1,22 @@
 import type {
-  Contribution,
   StateContributions,
 } from "../../types/contributions";
-import { candidateInfo } from "../constants/candidateConstants";
 
-export const processContributions = (
-  data: Contribution[]
+export const sortContributions = (
+  data: StateContributions
 ): StateContributions => {
-  const stateData: StateContributions = {};
 
-  // Group by state
-  data.forEach((contribution) => {
-    const {
-      CandidateID,
-      CandidateName,
-      CandidateParty,
-      ContributorState,
-      ElectionYear,
-      NetReceipts,
-    } = contribution;
-    const candidate = candidateInfo[CandidateID];
-
-    if (!candidate) return; // Skip if we don't have candidate info
-
-    if (!stateData[ContributorState]) {
-      stateData[ContributorState] = [];
-    }
-
-    // Find if candidate already exists in state
-    const existingCandidate = stateData[ContributorState].find(
-      (c) => c.CandidateID === CandidateID
+  Object.keys(data).forEach((stateCode) => {
+    let stateContributions = data[stateCode]
+    stateContributions = stateContributions.filter(candidate => 
+      candidate.CandidateName != "All candidates" && 
+      candidate.CandidateName != "Republicans" && 
+      candidate.CandidateName != "Democrats"
     );
-
-    if (existingCandidate) {
-      existingCandidate.NetReceipts += NetReceipts;
-    } else {
-      stateData[ContributorState].push({
-        CandidateID,
-        CandidateName,
-        CandidateParty,
-        ContributorState,
-        ElectionYear,
-        NetReceipts,
-      });
-    }
+    stateContributions.sort((a, b) => b.NetReceipts - a.NetReceipts);
+    stateContributions = stateContributions.slice(0, 4);
+    data[stateCode] = stateContributions;
   });
 
-  // Sort candidates by total amount in each state
-  Object.keys(stateData).forEach((state) => {
-    stateData[state].sort((a, b) => b.NetReceipts - a.NetReceipts);
-  });
-
-  return stateData;
+  return data;
 };
