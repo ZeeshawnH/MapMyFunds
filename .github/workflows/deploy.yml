@@ -20,7 +20,7 @@ jobs:
 
       - name: Deploy via SSH
         run: |
-          ssh -o StrictHostKeyChecking=no ec2-user@your-ec2-ip << 'EOF'
+          ssh -o StrictHostKeyChecking=no ec2-user@ec2-34-206-142-143.compute-1.amazonaws.com << 'EOF'
             cd /home/ec2-user/your-app-folder
             docker-compose pull
             docker-compose down
