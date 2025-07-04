@@ -27,6 +27,7 @@ jobs:
         id: ip
         run: |
           echo "ipv4=$(curl -s https://api.ipify.org)" >> $GITHUB_OUTPUT
+          echo "ipv6=$(curl -s https://api64.ipify.org)" >> $GITHUB_OUTPUT
 
       - name: Whitelist runner IP address in EC2 SG
         run: |
@@ -34,7 +35,7 @@ jobs:
             --group-id $AWS_INSTANCE_SG_ID \
             --protocol tcp \
             --port 22 \
-            --cidr ${{ steps.ip.outputs.ip }}/32
+            --cidr ${{ steps.ip.outputs.ipv4 }}/32
 
       - name: Deploy app
         run: |
