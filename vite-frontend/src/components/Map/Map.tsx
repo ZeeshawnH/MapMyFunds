@@ -2,12 +2,16 @@ import React, { useEffect, useRef, useState, useLayoutEffect } from "react";
 import * as d3 from "d3";
 import type { Feature, FeatureCollection, Geometry } from "geojson";
 import type { GeoPermissibleObjects } from "d3";
-import type { TooltipData, GeoJsonFeature } from "../types";
-import type { StateContributions } from "../types/contributions";
-import { handleMouseHover, handleMouseMove, handleMouseOut } from "../utils/d3";
+import type { TooltipData, GeoJsonFeature } from "../../types";
+import type { StateContributions } from "../../types/contributions";
+import {
+  handleMouseHover,
+  handleMouseMove,
+  handleMouseOut,
+} from "../../utils/d3";
 import styles from "./Map.module.css";
-import { partyColor, numericToStateCode } from "../utils/constants";
-import TooltipPopup from "./TooltipPopup";
+import { partyColor, numericToStateCode } from "../../utils/constants";
+import TooltipPopup from "../TooltipPopup";
 
 interface MapProps {
   size: number;
