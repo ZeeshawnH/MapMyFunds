@@ -25,16 +25,16 @@ jobs:
       - name: Build and push backend image
         uses: docker/build-push-action@v5
         with:
-          context: ./backend
-          file: ./backend/Dockerfile
+          context: ./go-backend
+          file: ./go-backend/Dockerfile
           push: true
           tags: zeeshawnh/go-backend:latest
 
       - name: Build and push frontend image
         uses: docker/build-push-action@v5
         with:
-          context: ./frontend
-          file: ./frontend/Dockerfile
+          context: ./vite-frontend
+          file: ./vite-frontend/Dockerfile
           push: true
           tags: zeeshawnh/frontend:latest
 
