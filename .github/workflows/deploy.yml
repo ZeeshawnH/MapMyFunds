@@ -37,6 +37,12 @@ jobs:
             --port 22 \
             --cidr ${{ steps.ip.outputs.ipv4 }}/32
 
+      - name: Add SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
       - name: Deploy app
         run: |
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ec2-user@ec2-34-206-142-143.compute-1.amazonaws.com << 'EOF'
