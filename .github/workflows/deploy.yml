@@ -46,7 +46,7 @@ jobs:
       - name: Deploy app
         run: |
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ec2-user@ec2-34-206-142-143.compute-1.amazonaws.com << 'EOF'
-            cd /home/ec2-user/your-app-folder
+            cd /home/ec2-user/ElectionsApp
             docker-compose pull
             docker-compose down
             docker-compose up -d --remove-orphans
@@ -61,4 +61,4 @@ jobs:
             --group-id $AWS_INSTANCE_SG_ID \
             --protocol tcp \
             --port 22 \
-            --cidr ${{ steps.ip.outputs.ip }}/32
+            --cidr ${{ steps.ip.outputs.ipv4 }}/32
