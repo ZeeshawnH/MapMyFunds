@@ -1,4 +1,5 @@
 import React from "react";
+import styles from "./TooltipPopup.module.css";
 
 interface Recipient {
   CandidateID: string;
@@ -25,38 +26,25 @@ const TooltipPopup: React.FC<TooltipPopupProps> = ({
   if (!visible) return null;
   return (
     <div
+      className={styles.tooltip}
       style={{
-        position: "absolute",
-        left: x + 10,
-        top: y + 10,
-        width: 220,
-        minHeight: 80,
-        background: "white",
-        border: "1px solid #ccc",
-        padding: "8px 12px",
-        pointerEvents: "none",
-        fontSize: 14,
-        borderRadius: 4,
-        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-        zIndex: 10,
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "flex-start",
-      }}
+        "--x": `${x + 10}px`,
+        "--y": `${y + 10}px`,
+      } as React.CSSProperties}
     >
-      <div style={{ fontWeight: 700, marginBottom: 6 }}>{stateName}</div>
+      <div className={styles.stateName}>{stateName}</div>
       {recipients && recipients.length > 0 ? (
-        <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
+        <ul className={styles.recipientsList}>
           {recipients.map((recipient) => (
-            <li key={recipient.CandidateID} style={{ marginBottom: 4 }}>
-              <span style={{ fontWeight: 500 }}>{recipient.CandidateName}</span>
+            <li key={recipient.CandidateID} className={styles.recipientItem}>
+              <span className={styles.candidateName}>{recipient.CandidateName}</span>
               {` (${recipient.CandidateParty})`}: $
               {recipient.NetReceipts.toLocaleString()}
             </li>
           ))}
         </ul>
       ) : (
-        <div>No data</div>
+        <div className={styles.noData}>No data</div>
       )}
     </div>
   );
