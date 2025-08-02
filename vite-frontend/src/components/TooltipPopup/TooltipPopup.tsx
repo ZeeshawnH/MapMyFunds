@@ -1,18 +1,13 @@
 import React from "react";
 import styles from "./TooltipPopup.module.css";
-
-interface Recipient {
-  CandidateID: string;
-  CandidateName: string;
-  CandidateParty: string;
-  NetReceipts: number;
-}
+import type { Candidate } from "../../types/contributions";
+import CandidateListing from "./CandidateListing";
 
 interface TooltipPopupProps {
   x: number;
   y: number;
   stateName: string;
-  recipients: Recipient[];
+  candidates: Candidate[];
   visible: boolean;
 }
 
@@ -20,7 +15,7 @@ const TooltipPopup: React.FC<TooltipPopupProps> = ({
   x,
   y,
   stateName,
-  recipients,
+  candidates,
   visible,
 }) => {
   if (!visible) return null;
@@ -33,15 +28,9 @@ const TooltipPopup: React.FC<TooltipPopupProps> = ({
       } as React.CSSProperties}
     >
       <div className={styles.stateName}>{stateName}</div>
-      {recipients && recipients.length > 0 ? (
+      {candidates && candidates.length > 0 ? (
         <ul className={styles.recipientsList}>
-          {recipients.map((recipient) => (
-            <li key={recipient.CandidateID} className={styles.recipientItem}>
-              <span className={styles.candidateName}>{recipient.CandidateName}</span>
-              {` (${recipient.CandidateParty})`}: $
-              {recipient.NetReceipts.toLocaleString()}
-            </li>
-          ))}
+          {candidates.map((candidate) => <CandidateListing key={candidate.CandidateID} candidate={candidate} />)}
         </ul>
       ) : (
         <div className={styles.noData}>No data</div>

@@ -4,7 +4,7 @@ import {
 } from "../../types/contributions";
 
 // Candidate mapping
-// TODO update with real data
+// TODO update with api data
 export const candidateInfo: Record<string, CandidateInfo> = {
   P00000001: { last_name: "Trump", party: "REP" },
   P00000002: { last_name: "Harris", party: "DEM" },
@@ -19,16 +19,17 @@ export const partyColor = (party: string, isHovered: boolean = false) => {
     case "REP":
       return isHovered ? "#ff4d4d" : "#ff1a1a";
     case "IND":
-      return isHovered ? "#ffd700" : "#ffcc00"; // Gold for independent
+      return isHovered ? "#ffd700" : "#ffcc00";
     default:
       return isHovered ? "#e6e6e6" : "#cccccc";
   }
 };
 
-export type Party = "DEM" | "REP" | "LIB" | ""; // Add empty string
+export type Party = "DEM" | "REP" | "LIB" | "";
 
 // Add image mapping
 export const candidateImages: CandidateImageMap = {
-  Trump: "/assets/portraits/Trump.png",
-  Harris: "/assets/portraits/Harris.png",
+  Trump: "https://mapmyfunds-images.s3.us-east-1.amazonaws.com/donaldtrump.jpeg",
+  Harris: "https://mapmyfunds-images.s3.us-east-1.amazonaws.com/kamalaharris.png",
+  Kennedy: "https://mapmyfunds-images.s3.us-east-1.amazonaws.com/rfk.png",
 };

@@ -1,0 +1,77 @@
+.tooltip {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: 280px;
+  min-height: 100px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  padding: 12px 12px;
+  pointer-events: none;
+  font-size: 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.stateName {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.recipientsList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.recipientItem {
+  margin-bottom: 0px;
+  padding: 2px 0;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.recipientItem:last-child {
+  border-bottom: none;
+}
+
+.candidateInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.candidateName {
+  font-weight: 600;
+  font-size: 16px;
+  color: #333;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.candidateParty {
+  font-size: 13px;
+  color: #666;
+  font-weight: 400;
+  display: block;
+}
+
+.candidateAmount {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c5aa0;
+  text-align: right;
+}
+
+
+
+.noData {
+  color: #666;
+  font-style: italic;
+} 
+
