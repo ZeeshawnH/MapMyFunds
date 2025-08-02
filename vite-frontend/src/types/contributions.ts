@@ -8,10 +8,10 @@ export interface Contribution {
 }
 
 export interface Candidate {
-  candidate_id: string;
-  candidate_last_name: string;
-  candidate_party_affiliation: string;
-  total_amount: number;
+  CandidateID: string;
+  CandidateName: string;
+  CandidateParty: string;
+  NetReceipts: number;
 }
 
 export interface StateContributions {

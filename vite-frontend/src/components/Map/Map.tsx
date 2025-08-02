@@ -11,7 +11,7 @@ import {
 } from "../../utils/d3";
 import styles from "./Map.module.css";
 import { partyColor, numericToStateCode } from "../../utils/constants";
-import TooltipPopup from "../TooltipPopup";
+import TooltipPopup from "../TooltipPopup/TooltipPopup";
 
 interface MapProps {
   size: number;
@@ -106,7 +106,7 @@ const Map: React.FC<MapProps> = ({ size, geojsonPath, contributionData }) => {
         x={tooltip?.x ?? 0}
         y={tooltip?.y ?? 0}
         stateName={tooltip?.name ?? ""}
-        recipients={
+        candidates={
           tooltip?.stateCode && contributionData[tooltip.stateCode]
             ? contributionData[tooltip.stateCode]
             : []
