@@ -1,8 +1,12 @@
 export const partyColor = (
-  party: string,
+  party: string | null,
   isHovered: boolean = false
 ): string => {
-  switch (party?.toUpperCase()) {
+  if (!party) {
+    return isHovered ? "#9ca3af" : "#6b7280"; // Neutral gray
+  }
+
+  switch (party.toUpperCase()) {
     case "DEM":
       return isHovered ? "#4d94ff" : "#1a75ff";
     case "REP":

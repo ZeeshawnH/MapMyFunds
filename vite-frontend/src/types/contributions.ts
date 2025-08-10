@@ -10,7 +10,7 @@ export interface Contribution {
 export interface Candidate {
   CandidateID: string;
   CandidateName: string;
-  CandidateParty: string;
+  CandidateParty: string | null;
   NetReceipts: number;
 }
 

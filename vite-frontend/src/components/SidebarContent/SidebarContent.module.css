@@ -1,0 +1,33 @@
+.sidebarContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 400px;
+  padding: 4rem 0 0 6rem;
+}
+
+.title {
+  margin-bottom: 1.5rem;
+  color: #333;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  /* min-width: 350px; */
+}
+
+.listItem {
+  margin-bottom: 1rem;
+  width: 100%;
+}
+
+.listItem:last-child {
+  margin-bottom: 0;
+}
