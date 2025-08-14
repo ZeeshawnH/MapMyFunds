@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	baseURL     = "https://api.open.fec.gov/v1/presidential/contributions/by_candidate/"
-	queryParams = "per_page=100&sort=-net_receipts&sort_hide_null=false&sort_null_only=false&sort_nulls_last=false"
+	candidateContributionsPath = "presidential/contributions/by_candidate/"
+	contributionsQueryParams   = "per_page=100&sort=-net_receipts&sort_hide_null=false&sort_null_only=false&sort_nulls_last=false"
 )
 
 type CandidateContribution struct {
@@ -21,56 +21,31 @@ type CandidateContribution struct {
 	NetReceipts               float64 `json:"net_receipts"`
 }
 
-type FECPagination struct {
-	Count        int  `json:"count"`
-	IsCountExact bool `json:"is_count_exact"`
-	Page         int  `json:"page"`
-	Pages        int  `json:"pages"`
-	PerPage      int  `json:"per_page"`
-}
-
-type FECResponse struct {
-	Pagination FECPagination           `json:"pagination"`
-	Results    []CandidateContribution `json:"results"`
-}
-
-type FECError struct {
-	Status  int    `json:"status"`
-	Message string `json:"message"`
-}
-
-func getFECData(page int, year int) (FECResponse, error) {
-	url := fmt.Sprintf("%s?page=%d&election_year=%d&%s&api_key=%s",
+func FetchContributionDataFromFEC(page int, year int) (FECResponse[CandidateContribution], error) {
+	url := fmt.Sprintf("%s%s?page=%d&election_year=%d&%s&api_key=%s",
 		baseURL,
+		candidateContributionsPath,
 		page,
 		year,
-		queryParams,
+		contributionsQueryParams,
 		os.Getenv("FEC_API_KEY"),
 	)
 
 	resp, err := http.Get(url)
 	if err != nil {
-		return FECResponse{}, fmt.Errorf("FEC API request failed: %w", err)
+		return FECResponse[CandidateContribution]{}, fmt.Errorf("FEC API request failed: %w", err)
 	}
 	defer resp.Body.Close()
 
-	var data FECResponse
+	var data FECResponse[CandidateContribution]
 	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-		return FECResponse{}, fmt.Errorf("failed to parse response: %w", err)
+		return FECResponse[CandidateContribution]{}, fmt.Errorf("failed to parse response: %w", err)
 	}
 	return data, nil
 }
 
-func getContributionsByStatePaginated(page int, year int) ([]CandidateContribution, error) {
-	data, err := getFECData(page, year)
-	if err != nil {
-		return nil, err
-	}
-	return data.Results, nil
-}
-
 func GetContributions(year int) ([]CandidateContribution, error) {
-	data, err := getFECData(1, year)
+	data, err := FetchContributionDataFromFEC(1, year)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +54,7 @@ func GetContributions(year int) ([]CandidateContribution, error) {
 	pages := data.Pagination.Pages
 
 	for page := 2; page <= pages; page++ {
-		pageResults, err := getContributionsByStatePaginated(page, year)
+		pageResults, err := getDataPaginated(page, year, FetchContributionDataFromFEC)
 		if err != nil {
 			return nil, err
 		}
