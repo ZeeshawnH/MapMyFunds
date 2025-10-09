@@ -8,6 +8,7 @@ import (
 
 	"backend/aggregator"
 	"backend/db"
+	"backend/openfec"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -57,6 +58,23 @@ func main() {
 		if err != nil {
 			c.JSON(http.StatusBadRequest, err.Error())
 			return
+		}
+		c.JSON(http.StatusOK, resp)
+	})
+
+	router.GET("api/candidates", func(c *gin.Context) {
+		resp, err := openfec.GetCandidateData(2024)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, err.Error())
+		}
+
+		c.JSON(http.StatusOK, resp)
+	})
+
+	router.GET("/api/contributions/withCandidates", func(c *gin.Context) {
+		resp, err := db.GetAllContributionsWithCandidates(client, 2024)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, err.Error())
 		}
 		c.JSON(http.StatusOK, resp)
 	})
