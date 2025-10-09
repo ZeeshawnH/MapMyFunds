@@ -1,15 +1,6 @@
 import {
-  type CandidateInfo,
   type CandidateImageMap,
 } from "../../types/contributions";
-
-// Candidate mapping
-// TODO update with api data
-// export const candidateInfo: Record<string, CandidateInfo> = {
-//   P00000001: { last_name: "Trump", party: "REP" },
-//   P00000002: { last_name: "Harris", party: "DEM" },
-//   P00009423: { last_name: "Kennedy", party: "IND" },
-// };
 
 // Update color scale
 export const partyColor = (party: string, isHovered: boolean = false) => {
