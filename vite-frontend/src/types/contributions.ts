@@ -14,9 +14,21 @@ export interface Candidate {
   NetReceipts: number;
 }
 
+export interface CandidateResponse {
+  candidate_id: string,
+  name: string,
+  office: string,
+  office_full: string,
+  party: string,
+  party_full: string,
+  image_url: string
+}
+
 export interface StateContributions {
   [stateCode: string]: Contribution[];
 }
+
+
 
 export interface CandidateInfo {
   last_name: string;

@@ -12,3 +12,16 @@ export const fetchContributionsByState = async () => {
     throw error;
   }
 };
+
+export const fetchContributionsWithCandidates = async () => {
+  const url = "localhost:8080";
+  const path = "/api/contributions/withCandidates";
+
+  try {
+    const response = await axios.get(`http://${url}${path}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
