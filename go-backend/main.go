@@ -71,5 +71,13 @@ func main() {
 		c.JSON(http.StatusOK, resp)
 	})
 
+	router.GET("/api/contributions/withCandidates", func(c *gin.Context) {
+		resp, err := db.GetAllContributionsWithCandidates(client, 2024)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, err.Error())
+		}
+		c.JSON(http.StatusOK, resp)
+	})
+
 	router.Run(":8080")
 }
