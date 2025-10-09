@@ -1,6 +1,7 @@
 package db
 
 import (
+	"backend/types"
 	"context"
 	"log"
 	"os"
@@ -19,6 +20,11 @@ type Contribution struct {
 	ContributorState string  `bson:"contributor_state"`
 	ElectionYear     int     `bson:"election_year"`
 	NetReceipts      float64 `bson:"net_receipts"`
+}
+
+type ContributionsWithCandidatesResponse struct {
+	Contributions map[string][]Contribution `json:"contributions"`
+	Candidates    []types.Candidate         `json:"candidates"`
 }
 
 func ConnectDB() (*mongo.Client, error) {
