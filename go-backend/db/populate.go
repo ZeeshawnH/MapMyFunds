@@ -3,6 +3,7 @@ package db
 import (
 	"backend/openfec"
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -11,7 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func PopulateDatabase(client *mongo.Client) error {
+func PopulateContributionsCollection(client *mongo.Client) error {
 	data, err := openfec.GetContributions(2024)
 	if err != nil {
 		return err
@@ -50,5 +51,46 @@ func PopulateDatabase(client *mongo.Client) error {
 	}
 
 	log.Println("Successfully updated database!")
+	return nil
+}
+
+func PopulateCandidatesCollection(client *mongo.Client) error {
+	data, err := openfec.GetCandidateData(2024)
+	if err != nil {
+		return err
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+
+	collection := client.Database("election_data").Collection("candidates")
+
+	var operations []mongo.WriteModel
+
+	for _, c := range data {
+		filter := bson.M{"candidate_id": c.CandidateID}
+		update := bson.M{"$set": c}
+
+		operation := mongo.NewUpdateOneModel().
+			SetFilter(filter).
+			SetUpdate(update).
+			SetUpsert(true)
+
+		operations = append(operations, operation)
+	}
+
+	if len(operations) > 0 {
+		result, err := collection.BulkWrite(ctx, operations)
+		if err != nil {
+			return fmt.Errorf("failed to execute bulk write: %w", err)
+		}
+
+		log.Printf("Successfully updated candidates: %d upserted, %d modified",
+			result.UpsertedCount, result.ModifiedCount)
+	} else {
+		log.Println("No candidate data to update")
+	}
+
+	log.Println("Successfully updated Candidate info in database!")
 	return nil
 }
