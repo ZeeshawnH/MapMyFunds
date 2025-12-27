@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"log"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 	"backend/aggregator"
 	"backend/db"
 	"backend/openfec"
+	"backend/storage/postgres"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -40,6 +42,22 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
+
+	ctx := context.Background()
+
+	pgConn, err := postgres.Connect(ctx)
+	if err != nil {
+		log.Fatalf("Failed to connect to Postgres: %v", err)
+	}
+	defer pgConn.Close(ctx)
+
+	var one int
+	err = pgConn.QueryRow(ctx, "SELECT 1").Scan(&one)
+	if err != nil {
+		log.Fatalf("Postgres test query failed: %v", err)
+	}
+
+	log.Println("Postgres connection verified")
 
 	// Get request for contributions by state
 	router.GET("/api/contributions", func(c *gin.Context) {
@@ -77,6 +95,14 @@ func main() {
 			c.JSON(http.StatusBadRequest, err.Error())
 		}
 		c.JSON(http.StatusOK, resp)
+	})
+
+	router.GET("/api/contributors", func(c *gin.Context) {
+		resp, err := openfec.FetchContributorReceiptDataFromFEC(nil, nil, nil, []int{2024})
+		if err != nil {
+			c.JSON(http.StatusBadRequest, err.Error())
+		}
+		c.JSON(http.StatusOK, resp.Results)
 	})
 
 	router.Run(":8080")
