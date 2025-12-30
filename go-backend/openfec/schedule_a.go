@@ -11,8 +11,8 @@ import (
 )
 
 const (
-	contributorReceiptsPath        = "schedules/schedule_c/"
-	contributorReceiptsQueryParams = "per_page=100&sort=-incurred_date&sort_hide_null=true&sort_null_only=false&sort_nulls_last=true"
+	contributorReceiptsPath        = "schedules/schedule_a/"
+	contributorReceiptsQueryParams = "per_page=100&sort=-contribution_receipt_date&sort_hide_null=true&sort_null_only=false&sort_nulls_last=true&two-year-tran"
 )
 
 func FetchContributorReceiptDataFromFEC(
@@ -30,12 +30,14 @@ func FetchContributorReceiptDataFromFEC(
 	if lastReceiptDate != nil {
 		params.Set("last_contribution_receipt_date", *lastReceiptDate)
 	}
+
 	if sortNullOnly != nil {
 		params.Set("sort_null_only", strconv.FormatBool(*sortNullOnly))
 	}
 
 	for _, y := range years {
 		params.Add("years", strconv.Itoa(y))
+		params.Add("two_year_transaction_period", strconv.Itoa(y))
 	}
 
 	var requestUrl string
@@ -61,4 +63,3 @@ func FetchContributorReceiptDataFromFEC(
 	}
 	return data, nil
 }
-

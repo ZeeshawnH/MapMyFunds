@@ -10,16 +10,15 @@ import (
 
 const (
 	candidatePath        = "candidates/"
-	candidateQueryParams = "per_page=100&sort=name&sort_hide_null=true&sort_null_only=false&sort_nulls_last=false&api_key=mpes9XAfrLNioHVlF4mMflhFi1Kd8kfuZAiI4CFC"
+	candidateQueryParams = "per_page=100&sort=name&sort_hide_null=true&sort_null_only=false&sort_nulls_last=false"
 )
 
 func FetchCandidateDataFromFEC(page int, year int) (FECResponse[types.Candidate], error) {
-	url := fmt.Sprintf("%s%s?page=%d&election_year=%d&office=%s&%s&api_key=%s",
+	url := fmt.Sprintf("%s%s?page=%d&election_year=%d&%s&api_key=%s",
 		baseURL,
 		candidatePath,
 		page,
 		year,
-		"P",
 		candidateQueryParams,
 		os.Getenv("FEC_API_KEY"),
 	)

@@ -9,6 +9,7 @@ import (
 
 	"backend/aggregator"
 	"backend/db"
+	"backend/ingest"
 	"backend/openfec"
 	"backend/storage/postgres"
 
@@ -54,10 +55,35 @@ func main() {
 	var one int
 	err = pgConn.QueryRow(ctx, "SELECT 1").Scan(&one)
 	if err != nil {
-		log.Fatalf("Postgres test query failed: %v", err)
+		log.Printf("Postgres test query failed: %v", err)
+	} else {
+		log.Println("Postgres connection verified")
 	}
 
-	log.Println("Postgres connection verified")
+	repo := postgres.NewRepository(pgConn)
+
+	err = ingest.IngestCommitteeInfo(ctx, repo)
+	if err != nil {
+		log.Printf("Committee ingestion failed: %v", err)
+	}
+
+	// err = ingest.IngestCandidateInfo(ctx, repo, 2024)
+	// if err != nil {
+	// 	log.Printf("Ingestion failed: %v", err)
+	// }
+
+	// err = ingest.RunScheduleAIngestion(ctx, repo, 2024, 0)
+	// if err != nil {
+	// 	log.Printf("Ingestion failed: %v", err)
+	// }
+
+	if true {
+		aggregator := aggregator.NewScheduleAAggregator(repo, client, "elections")
+		err = aggregator.RunAggregation(ctx, 2024)
+		if err != nil {
+			log.Printf("Aggregation failed: %v", err)
+		}
+	}
 
 	// Get request for contributions by state
 	router.GET("/api/contributions", func(c *gin.Context) {
@@ -97,8 +123,8 @@ func main() {
 		c.JSON(http.StatusOK, resp)
 	})
 
-	router.GET("/api/contributors", func(c *gin.Context) {
-		resp, err := openfec.FetchContributorReceiptDataFromFEC(nil, nil, nil, []int{2024})
+	router.GET("/api/test", func(c *gin.Context) {
+		resp, err := openfec.FetchCommitteeDataFromFEC(1)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, err.Error())
 		}
