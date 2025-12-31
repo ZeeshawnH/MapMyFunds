@@ -10,9 +10,12 @@ import (
 	"time"
 )
 
+const maxScheduleARetries = 3
+
 func ingestScheduleAReceipts(ctx context.Context, receipts []types.ContributorReceipt, repo *postgres.Repository) error {
 	dbReceipts := make([]types.DBScheduleAReceipt, 0, len(receipts))
 
+receiptLoop:
 	for _, receipt := range receipts {
 		// Skip receipts with no contributor information
 		if receipt.ContributorName == "" && receipt.ContributorCommittee.CommitteeID == "" {
@@ -31,15 +34,23 @@ func ingestScheduleAReceipts(ctx context.Context, receipts []types.ContributorRe
 
 		// Handle committee contributors (NOT individuals)
 		if !receipt.IsIndividual && receipt.ContributorCommittee.CommitteeID != "" {
-			// Upsert the contributor committee
-			err := repo.UpsertCommittee(ctx, types.DBCommittee{
-				CommitteeID:   receipt.ContributorCommittee.CommitteeID,
-				Name:          receipt.ContributorCommittee.Name,
-				CommitteeType: receipt.ContributorCommittee.CommitteeType,
-			})
-			if err != nil {
-				return fmt.Errorf("failed to upsert contributor committee %s: %w",
-					receipt.ContributorCommittee.CommitteeID, err)
+			// Upsert the contributor committee with retries
+			for attempt := 1; attempt <= maxScheduleARetries; attempt++ {
+				err := repo.UpsertCommittee(ctx, types.DBCommittee{
+					CommitteeID:   receipt.ContributorCommittee.CommitteeID,
+					Name:          receipt.ContributorCommittee.Name,
+					CommitteeType: receipt.ContributorCommittee.CommitteeType,
+				})
+				if err == nil {
+					break
+				}
+				if attempt == maxScheduleARetries {
+					log.Printf("failed to upsert contributor committee %s after %d attempts: %v",
+						receipt.ContributorCommittee.CommitteeID, maxScheduleARetries, err)
+					// Skip this receipt but continue processing others
+					continue receiptLoop
+				}
+				time.Sleep(200 * time.Millisecond)
 			}
 
 			contributorID = &receipt.ContributorCommittee.CommitteeID
@@ -48,28 +59,45 @@ func ingestScheduleAReceipts(ctx context.Context, receipts []types.ContributorRe
 
 		// Upsert the receiving committee
 		if receipt.CommitteeID != "" {
-			err := repo.UpsertCommittee(ctx, types.DBCommittee{
-				CommitteeID:   receipt.CommitteeID,
-				Name:          receipt.Committee.Name,
-				CommitteeType: receipt.Committee.CommitteeType,
-			})
-			if err != nil {
-				return fmt.Errorf("failed to upsert receiving committee %s: %w",
-					receipt.CommitteeID, err)
+			// Upsert the receiving committee with retries
+			for attempt := 1; attempt <= maxScheduleARetries; attempt++ {
+				err := repo.UpsertCommittee(ctx, types.DBCommittee{
+					CommitteeID:   receipt.CommitteeID,
+					Name:          receipt.Committee.Name,
+					CommitteeType: receipt.Committee.CommitteeType,
+				})
+				if err == nil {
+					break
+				}
+				if attempt == maxScheduleARetries {
+					log.Printf("failed to upsert receiving committee %s after %d attempts: %v",
+						receipt.CommitteeID, maxScheduleARetries, err)
+					// Skip this receipt but continue processing others
+					continue receiptLoop
+				}
+				time.Sleep(200 * time.Millisecond)
 			}
 		}
 
 		// Handle conduit committee if present
 		if receipt.ConduitCommittee != nil && receipt.ConduitCommittee.CommitteeID != "" {
-			// Upsert the conduit committee
-			err := repo.UpsertCommittee(ctx, types.DBCommittee{
-				CommitteeID:   receipt.ConduitCommittee.CommitteeID,
-				Name:          receipt.ConduitCommittee.Name,
-				CommitteeType: receipt.ConduitCommittee.CommitteeType,
-			})
-			if err != nil {
-				return fmt.Errorf("failed to upsert conduit committee %s: %w",
-					receipt.ConduitCommittee.CommitteeID, err)
+			// Upsert the conduit committee with retries
+			for attempt := 1; attempt <= maxScheduleARetries; attempt++ {
+				err := repo.UpsertCommittee(ctx, types.DBCommittee{
+					CommitteeID:   receipt.ConduitCommittee.CommitteeID,
+					Name:          receipt.ConduitCommittee.Name,
+					CommitteeType: receipt.ConduitCommittee.CommitteeType,
+				})
+				if err == nil {
+					break
+				}
+				if attempt == maxScheduleARetries {
+					log.Printf("failed to upsert conduit committee %s after %d attempts: %v",
+						receipt.ConduitCommittee.CommitteeID, maxScheduleARetries, err)
+					// Skip this receipt but continue processing others
+					continue receiptLoop
+				}
+				time.Sleep(200 * time.Millisecond)
 			}
 
 			conduitCommitteeID = &receipt.ConduitCommittee.CommitteeID
@@ -160,10 +188,25 @@ func ingestScheduleAReceipts(ctx context.Context, receipts []types.ContributorRe
 		dbReceipts = append(dbReceipts, dbReceipt)
 	}
 
-	// Batch insert all receipts
+	// Batch insert all receipts. If the batch fails, fall back to per-row upserts
+	// with retries so that a few bad rows don't abort the entire page.
 	if len(dbReceipts) > 0 {
 		if err := repo.BatchInsertScheduleAReceipts(ctx, dbReceipts); err != nil {
-			return fmt.Errorf("failed to batch insert receipts: %w", err)
+			log.Printf("batch insert for %d receipts failed, falling back to per-row upserts: %v", len(dbReceipts), err)
+
+			for _, r := range dbReceipts {
+				for attempt := 1; attempt <= maxScheduleARetries; attempt++ {
+					if err := repo.UpsertScheduleAReceipt(ctx, r); err != nil {
+						if attempt == maxScheduleARetries {
+							log.Printf("failed to upsert receipt %s after %d attempts: %v", r.FECReceiptID, maxScheduleARetries, err)
+						} else {
+							time.Sleep(200 * time.Millisecond)
+						}
+					} else {
+						break
+					}
+				}
+			}
 		}
 	}
 
