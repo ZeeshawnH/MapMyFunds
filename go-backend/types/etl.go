@@ -130,6 +130,13 @@ type DBCommittee struct {
 	CandidateIDs []string `db:"candidate_ids"`
 }
 
+// DBCandidateCommittee represents a row in the candidate_committees join table
+type DBCandidateCommittee struct {
+	CandidateID      string `db:"candidate_id"`
+	CommitteeID      string `db:"committee_id"`
+	RelationshipType string `db:"relationship_type"`
+}
+
 // DBContributor represents a row in the contributors table
 type DBContributor struct {
 	ContributorID string

@@ -41,15 +41,69 @@ func (r *Repository) UpsertCandidate(ctx context.Context, candidate types.DBCand
 // Insert or update committee record
 func (r *Repository) UpsertCommittee(ctx context.Context, committee types.DBCommittee) error {
 	query := `
-		INSERT INTO committees (committee_id, name, committee_type)
-		VALUES ($1, $2, $3)
+		INSERT INTO committees (committee_id, name, committee_type, candidate_ids)
+		VALUES ($1, $2, $3, $4)
 		ON CONFLICT (committee_id)
 		DO UPDATE SET 
 			name = EXCLUDED.name,
-			committee_type = EXCLUDED.committee_type
+			committee_type = EXCLUDED.committee_type,
+			candidate_ids = EXCLUDED.candidate_ids
 	`
-	_, err := r.conn.Exec(ctx, query, committee.CommitteeID, committee.Name, committee.CommitteeType)
+	_, err := r.conn.Exec(ctx, query, committee.CommitteeID, committee.Name, committee.CommitteeType, committee.CandidateIDs)
 	return err
+}
+
+// UpsertCandidateCommittee inserts or updates a candidate-committee relationship
+func (r *Repository) UpsertCandidateCommittee(ctx context.Context, rel types.DBCandidateCommittee) error {
+	query := `
+		INSERT INTO candidate_committees (candidate_id, committee_id, relationship_type)
+		VALUES ($1, $2, $3)
+		ON CONFLICT (candidate_id, committee_id, relationship_type)
+		DO NOTHING
+	`
+	_, err := r.conn.Exec(ctx, query, rel.CandidateID, rel.CommitteeID, rel.RelationshipType)
+	return err
+}
+
+// GetCommitteesWithCandidateIDs returns committees that have one or more candidate IDs stored
+func (r *Repository) GetCommitteesWithCandidateIDs(ctx context.Context) ([]types.DBCommittee, error) {
+	query := `
+		SELECT committee_id, name, committee_type, committee_type_full,
+		       designation, designation_full, party, state, candidate_ids
+		FROM committees
+		WHERE candidate_ids IS NOT NULL AND array_length(candidate_ids, 1) > 0
+	`
+
+	rows, err := r.conn.Query(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var committees []types.DBCommittee
+	for rows.Next() {
+		var c types.DBCommittee
+		if err := rows.Scan(
+			&c.CommitteeID,
+			&c.Name,
+			&c.CommitteeType,
+			&c.CommitteeTypeFull,
+			&c.Designation,
+			&c.DesignationFull,
+			&c.Party,
+			&c.State,
+			&c.CandidateIDs,
+		); err != nil {
+			return nil, err
+		}
+		committees = append(committees, c)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return committees, nil
 }
 
 // Insert or update contributor
@@ -361,6 +415,26 @@ func (r *Repository) GetTopCandidatesByContributor(ctx context.Context, contribu
 	}
 
 	return results, rows.Err()
+}
+
+// CandidateExists checks whether a candidate with the given ID is present
+// in the candidates table. It returns (false, nil) if no row is found.
+func (r *Repository) CandidateExists(ctx context.Context, candidateID string) (bool, error) {
+	const query = `
+		SELECT 1
+		FROM candidates
+		WHERE candidate_id = $1
+	`
+
+	var one int
+	err := r.conn.QueryRow(ctx, query, candidateID).Scan(&one)
+	if err == pgx.ErrNoRows {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 // GetTopContributorsByCandidate returns the top N contributors to a specific candidate

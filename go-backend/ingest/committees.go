@@ -49,7 +49,7 @@ func IngestCommitteeInfo(ctx context.Context, repo *postgres.Repository) error {
 				DesignationFull:   committee.DesignationFull,
 				Party:             committee.Party,
 				State:             committee.State,
-				CandidateIDs:      nil,
+				CandidateIDs:      committee.CandidateIDs,
 			}
 
 			repo.UpsertCommittee(ctx, dbCommittee)

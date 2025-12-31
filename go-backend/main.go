@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"log"
 	"net/http"
@@ -9,9 +8,7 @@ import (
 
 	"backend/aggregator"
 	"backend/db"
-	"backend/ingest"
 	"backend/openfec"
-	"backend/storage/postgres"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -42,47 +39,6 @@ func main() {
 	client, err := db.ConnectDB()
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
-	}
-
-	ctx := context.Background()
-
-	pgConn, err := postgres.Connect(ctx)
-	if err != nil {
-		log.Fatalf("Failed to connect to Postgres: %v", err)
-	}
-	defer pgConn.Close(ctx)
-
-	var one int
-	err = pgConn.QueryRow(ctx, "SELECT 1").Scan(&one)
-	if err != nil {
-		log.Printf("Postgres test query failed: %v", err)
-	} else {
-		log.Println("Postgres connection verified")
-	}
-
-	repo := postgres.NewRepository(pgConn)
-
-	err = ingest.IngestCommitteeInfo(ctx, repo)
-	if err != nil {
-		log.Printf("Committee ingestion failed: %v", err)
-	}
-
-	// err = ingest.IngestCandidateInfo(ctx, repo, 2024)
-	// if err != nil {
-	// 	log.Printf("Ingestion failed: %v", err)
-	// }
-
-	// err = ingest.RunScheduleAIngestion(ctx, repo, 2024, 0)
-	// if err != nil {
-	// 	log.Printf("Ingestion failed: %v", err)
-	// }
-
-	if true {
-		aggregator := aggregator.NewScheduleAAggregator(repo, client, "elections")
-		err = aggregator.RunAggregation(ctx, 2024)
-		if err != nil {
-			log.Printf("Aggregation failed: %v", err)
-		}
 	}
 
 	// Get request for contributions by state
