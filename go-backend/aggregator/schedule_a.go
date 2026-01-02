@@ -69,6 +69,8 @@ func (a *ScheduleAAggregator) AggregateCommitteeContributors(ctx context.Context
 		if err != nil {
 			log.Printf("Warning: failed to get top candidates for %s: %v", contrib.ContributorID, err)
 			topCandidates = []types.CandidateContribution{}
+		} else if len(topCandidates) == 0 {
+			topCandidates = []types.CandidateContribution{}
 		}
 
 		stats := types.ContributorStats{
@@ -78,11 +80,12 @@ func (a *ScheduleAAggregator) AggregateCommitteeContributors(ctx context.Context
 			TotalContributed: contrib.TotalAmount,
 			ReceiptCount:     contrib.ReceiptCount,
 			TopCandidates:    topCandidates,
+			Cycle:            cycle,
 			LastUpdated:      time.Now(),
 		}
 
 		// Upsert to MongoDB
-		filter := bson.M{"contributor_id": contrib.ContributorID}
+		filter := bson.M{"contributor_id": contrib.ContributorID, "cycle": cycle}
 		update := bson.M{"$set": stats}
 		opts := options.Update().SetUpsert(true)
 
@@ -109,9 +112,12 @@ func (a *ScheduleAAggregator) AggregateCandidateReceipts(ctx context.Context, cy
 
 	for _, cand := range candidates {
 		// Get top contributors for this candidate
-		topContributors, err := a.pgRepo.GetTopContributorsByCandidate(ctx, cand.CandidateID, 10)
+		topContributors, err := a.pgRepo.GetTopContributorsByCandidate(ctx, cand.CandidateID, cycle, 10)
 		if err != nil {
 			log.Printf("Warning: failed to get top contributors for %s: %v", cand.CandidateID, err)
+			topContributors = []types.ContributorContribution{}
+		} else if len(topContributors) == 0 {
+			// Ensure we store an empty array rather than null in Mongo
 			topContributors = []types.ContributorContribution{}
 		}
 
@@ -123,11 +129,12 @@ func (a *ScheduleAAggregator) AggregateCandidateReceipts(ctx context.Context, cy
 			TotalReceived:   cand.TotalAmount,
 			ReceiptCount:    cand.ReceiptCount,
 			TopContributors: topContributors,
+			Cycle:           cycle,
 			LastUpdated:     time.Now(),
 		}
 
 		// Upsert to MongoDB
-		filter := bson.M{"candidate_id": cand.CandidateID}
+		filter := bson.M{"candidate_id": cand.CandidateID, "cycle": cycle}
 		update := bson.M{"$set": stats}
 		opts := options.Update().SetUpsert(true)
 
@@ -165,11 +172,12 @@ func (a *ScheduleAAggregator) AggregateStateStats(ctx context.Context, cycle int
 			TotalAmount:   state.TotalAmount,
 			ReceiptCount:  state.ReceiptCount,
 			TopCandidates: topCandidates,
+			Cycle:         cycle,
 			LastUpdated:   time.Now(),
 		}
 
 		// Upsert to MongoDB
-		filter := bson.M{"state": state.State}
+		filter := bson.M{"state": state.State, "cycle": cycle}
 		update := bson.M{"$set": stats}
 		opts := options.Update().SetUpsert(true)
 

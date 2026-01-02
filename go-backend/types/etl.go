@@ -225,6 +225,7 @@ type ContributorStats struct {
 	TotalContributed float64                 `bson:"total_contributed" json:"total_contributed"`
 	ReceiptCount     int                     `bson:"receipt_count" json:"receipt_count"`
 	TopCandidates    []CandidateContribution `bson:"top_candidates" json:"top_candidates"`
+	Cycle            int                     `bson:"cycle" json:"cycle"`
 	LastUpdated      time.Time               `bson:"last_updated" json:"last_updated"`
 }
 
@@ -237,6 +238,7 @@ type CandidateStats struct {
 	TotalReceived   float64                   `bson:"total_received" json:"total_received"`
 	ReceiptCount    int                       `bson:"receipt_count" json:"receipt_count"`
 	TopContributors []ContributorContribution `bson:"top_contributors" json:"top_contributors"`
+	Cycle           int                       `bson:"cycle" json:"cycle"`
 	LastUpdated     time.Time                 `bson:"last_updated" json:"last_updated"`
 }
 
@@ -246,6 +248,7 @@ type StateStats struct {
 	TotalAmount   float64                 `bson:"total_amount" json:"total_amount"`
 	ReceiptCount  int                     `bson:"receipt_count" json:"receipt_count"`
 	TopCandidates []CandidateContribution `bson:"top_candidates" json:"top_candidates"`
+	Cycle         int                     `bson:"cycle" json:"cycle"`
 	LastUpdated   time.Time               `bson:"last_updated" json:"last_updated"`
 }
 

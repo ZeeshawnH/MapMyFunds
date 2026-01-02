@@ -303,8 +303,8 @@ func (r *Repository) GetTotalContributionsByCandidate(ctx context.Context, candi
 	query := `
 		SELECT COALESCE(SUM(s.amount), 0) as total, COUNT(*) as count
 		FROM schedule_a_receipts s
-		JOIN committees c ON s.committee_id = c.committee_id
-		WHERE c.committee_id LIKE $1 || '%'
+		JOIN candidate_committees cc ON s.committee_id = cc.committee_id
+		WHERE cc.candidate_id = $1
 	`
 
 	var total float64
@@ -318,8 +318,7 @@ func (r *Repository) GetContributionsByState(ctx context.Context, state string) 
 	query := `
 		SELECT COALESCE(SUM(s.amount), 0) as total, COUNT(*) as count
 		FROM schedule_a_receipts s
-		JOIN contributors c ON s.contributor_id = c.contributor_id
-		WHERE c.state = $1
+		WHERE s.contributor_state = $1
 	`
 
 	var total float64
@@ -338,14 +337,15 @@ func (r *Repository) GetTopContributorsByAmount(ctx context.Context, limit int) 
 }, error) {
 	query := `
 		SELECT 
-			c.contributor_id,
-			c.name,
-			c.state,
+			com.committee_id as contributor_id,
+			com.name,
+			COALESCE(com.state, '') as state,
 			SUM(s.amount) as total_amount,
 			COUNT(*) as receipt_count
-		FROM contributors c
-		JOIN schedule_a_receipts s ON c.contributor_id = s.contributor_id
-		GROUP BY c.contributor_id, c.name, c.state
+		FROM schedule_a_receipts s
+		JOIN committees com ON s.contributor_id = com.committee_id
+		WHERE s.contributor_id IS NOT NULL
+		GROUP BY com.committee_id, com.name, com.state
 		ORDER BY total_amount DESC
 		LIMIT $1
 	`
@@ -391,8 +391,8 @@ func (r *Repository) GetTopCandidatesByContributor(ctx context.Context, contribu
 			SUM(s.amount) as total_amount,
 			COUNT(*) as receipt_count
 		FROM schedule_a_receipts s
-		JOIN committees com ON s.committee_id = com.committee_id
-		JOIN candidates can ON com.committee_id LIKE can.candidate_id || '%'
+		JOIN candidate_committees cc ON s.committee_id = cc.committee_id
+		JOIN candidates can ON cc.candidate_id = can.candidate_id
 		WHERE s.contributor_id = $1
 		GROUP BY can.candidate_id, can.name, can.party
 		ORDER BY total_amount DESC
@@ -437,25 +437,29 @@ func (r *Repository) CandidateExists(ctx context.Context, candidateID string) (b
 	return true, nil
 }
 
-// GetTopContributorsByCandidate returns the top N contributors to a specific candidate
-func (r *Repository) GetTopContributorsByCandidate(ctx context.Context, candidateID string, limit int) ([]types.ContributorContribution, error) {
+// GetTopContributorsByCandidate returns the top N committee contributors to a specific candidate
+// for a given cycle, based on Schedule A receipts. It uses the candidate_committees join table to
+// find the candidate's fundraising committees and then aggregates committee-to-committee donations.
+func (r *Repository) GetTopContributorsByCandidate(ctx context.Context, candidateID string, cycle int, limit int) ([]types.ContributorContribution, error) {
 	query := `
 		SELECT 
-			c.contributor_id,
-			c.name,
-			c.state,
+			com.committee_id as contributor_id,
+			com.name,
+			COALESCE(com.state, '') as state,
 			SUM(s.amount) as total_amount,
 			COUNT(*) as receipt_count
 		FROM schedule_a_receipts s
-		JOIN contributors c ON s.contributor_id = c.contributor_id
-		JOIN committees com ON s.committee_id = com.committee_id
-		WHERE com.committee_id LIKE $1 || '%'
-		GROUP BY c.contributor_id, c.name, c.state
+		JOIN candidate_committees cc ON s.committee_id = cc.committee_id
+		JOIN committees com ON s.contributor_id = com.committee_id
+		WHERE cc.candidate_id = $1
+		  AND s.cycle = $2
+		  AND s.contributor_id IS NOT NULL
+		GROUP BY com.committee_id, com.name, com.state
 		ORDER BY total_amount DESC
-		LIMIT $2
+		LIMIT $3
 	`
 
-	rows, err := r.conn.Query(ctx, query, candidateID, limit)
+	rows, err := r.conn.Query(ctx, query, candidateID, cycle, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -549,8 +553,8 @@ func (r *Repository) GetAllCandidatesWithTotals(ctx context.Context, cycle int) 
 			COALESCE(SUM(s.amount), 0) as total_amount,
 			COALESCE(COUNT(s.fec_receipt_id), 0) as receipt_count
 		FROM candidates can
-		LEFT JOIN committees com ON com.committee_id LIKE can.candidate_id || '%'
-		LEFT JOIN schedule_a_receipts s ON s.committee_id = com.committee_id AND s.cycle = $1
+		JOIN candidate_committees cc ON cc.candidate_id = can.candidate_id
+		JOIN schedule_a_receipts s ON s.committee_id = cc.committee_id AND s.cycle = $1
 		GROUP BY can.candidate_id, can.name, can.party, can.office
 		HAVING COUNT(s.fec_receipt_id) > 0
 		ORDER BY total_amount DESC
@@ -643,8 +647,8 @@ func (r *Repository) GetTopCandidatesByState(ctx context.Context, state string, 
 			SUM(s.amount) as total_amount,
 			COUNT(*) as receipt_count
 		FROM schedule_a_receipts s
-		JOIN committees com ON s.committee_id = com.committee_id
-		JOIN candidates can ON com.committee_id LIKE can.candidate_id || '%'
+		JOIN candidate_committees cc ON s.committee_id = cc.committee_id
+		JOIN candidates can ON cc.candidate_id = can.candidate_id
 		WHERE s.contributor_state = $1 AND s.cycle = $2 AND s.is_individual = true
 		GROUP BY can.candidate_id, can.name, can.party
 		ORDER BY total_amount DESC
