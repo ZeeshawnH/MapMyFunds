@@ -1,11 +1,11 @@
 import axios from "axios";
 
 export const fetchContributionsByState = async () => {
-  const url = "api.zeeshawnh.com";
+  const url = import.meta.env.VITE_API_URL;
   const path = "/api/contributions";
 
   try {
-    const response = await axios.get(`https://${url}${path}`);
+    const response = await axios.get(`http://${url}${path}`);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -13,12 +13,13 @@ export const fetchContributionsByState = async () => {
   }
 };
 
-export const fetchContributionsWithCandidates = async () => {
+export const fetchContributionsWithCandidates = async (year?: number) => {
   const url = "localhost:8080";
   const path = "/api/contributions/withCandidates";
 
   try {
-    const response = await axios.get(`http://${url}${path}`);
+		const query = year ? `?year=${year}` : "";
+		const response = await axios.get(`http://${url}${path}${query}`);
     return response.data;
   } catch (error) {
     console.error(error);

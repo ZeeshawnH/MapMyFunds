@@ -12,8 +12,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func PopulateContributionsCollection(client *mongo.Client) error {
-	data, err := openfec.GetContributions(2024)
+func PopulateContributionsCollection(client *mongo.Client, year int) error {
+	data, err := openfec.GetContributions(year)
 	if err != nil {
 		return err
 	}
@@ -54,8 +54,8 @@ func PopulateContributionsCollection(client *mongo.Client) error {
 	return nil
 }
 
-func PopulateCandidatesCollection(client *mongo.Client) error {
-	data, err := openfec.GetCandidateData(2024)
+func PopulateCandidatesCollection(client *mongo.Client, year int) error {
+	data, err := openfec.GetCandidateData(year)
 	if err != nil {
 		return err
 	}
