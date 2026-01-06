@@ -14,7 +14,7 @@ export const fetchContributionsByState = async () => {
 };
 
 export const fetchContributionsWithCandidates = async (year?: number) => {
-  const url = import.meta.env.VITE_API_URL;
+  const url = "api.zeeshawnh.com";
   const path = "/api/contributions/withCandidates";
 
   try {
