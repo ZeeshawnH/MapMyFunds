@@ -1,11 +1,11 @@
 import axios from "axios";
 
 export const fetchContributionsByState = async () => {
-  const url = "api.zeeshawnh.com";
+  const url = import.meta.env.VITE_API_URL;
   const path = "/api/contributions";
 
   try {
-    const response = await axios.get(`https://${url}${path}`);
+    const response = await axios.get(`http://${url}${path}`);
     return response.data;
   } catch (error) {
     console.error(error);

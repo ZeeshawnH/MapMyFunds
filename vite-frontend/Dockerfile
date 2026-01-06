@@ -2,12 +2,14 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-COPY package.json .
+# Install dependencies using the lockfile for reproducible builds
+COPY package.json package-lock.json ./
 
-RUN npm install
+RUN npm ci
 
 RUN npm i -g serve
 
+# Copy application source (excluding node_modules via .dockerignore)
 COPY . .
 
 RUN npm run build
