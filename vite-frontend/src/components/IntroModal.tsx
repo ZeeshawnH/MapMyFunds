@@ -6,6 +6,7 @@ const IntroModal = ({ onClose }: IntroModalProps) => {
   return (
     <div className="intro-modal-backdrop" role="dialog" aria-modal="true">
       <div className="intro-modal">
+        <div className="intro-modal-brand">Map My Funds</div>
         <h2 className="intro-modal-title">
           How Each State Voted With Their Money
         </h2>
