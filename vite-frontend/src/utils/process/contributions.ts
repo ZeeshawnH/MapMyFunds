@@ -1,20 +1,14 @@
-import type {
-  StateContributions,
-} from "../../types/contributions";
+import type { StateContributions } from "../../types/contributions";
 
+// Sort contributions for each state in-place by net receipts.
+// We now keep all rows, including aggregate ones like "All candidates",
+// and filter them at the visualization layer instead.
 export const sortContributions = (
   data: StateContributions
 ): StateContributions => {
-
   Object.keys(data).forEach((stateCode) => {
-    let stateContributions = data[stateCode]
-    stateContributions = stateContributions.filter(candidate => 
-      candidate.CandidateName != "All candidates" && 
-      candidate.CandidateName != "Republicans" && 
-      candidate.CandidateName != "Democrats"
-    );
+    const stateContributions = data[stateCode];
     stateContributions.sort((a, b) => b.NetReceipts - a.NetReceipts);
-    stateContributions = stateContributions.slice(0, 4);
     data[stateCode] = stateContributions;
   });
 
