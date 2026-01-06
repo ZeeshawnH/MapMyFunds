@@ -17,9 +17,15 @@ interface MapProps {
   size: number;
   geojsonPath: string;
   contributionData: StateContributions;
+  candidateNamesById?: Record<string, string>;
 }
 
-const Map: React.FC<MapProps> = ({ size, geojsonPath, contributionData }) => {
+const Map: React.FC<MapProps> = ({
+  size,
+  geojsonPath,
+  contributionData,
+  candidateNamesById = {},
+}) => {
   // svg for map
   const svgRef = useRef<SVGSVGElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -70,7 +76,13 @@ const Map: React.FC<MapProps> = ({ size, geojsonPath, contributionData }) => {
           const stateContributions = contributionData[alphabeticStateCode];
 
           if (stateContributions && stateContributions.length > 0) {
-            const topRecipient = stateContributions[0];
+            const topRecipient =
+              stateContributions.find(
+                (c) =>
+                  c.CandidateName !== "All candidates" &&
+                  c.CandidateName !== "Republicans" &&
+                  c.CandidateName !== "Democrats"
+              ) || stateContributions[0];
             const color = partyColor(topRecipient.CandidateParty);
             return `--state-fill: ${color}`;
           }
@@ -106,11 +118,26 @@ const Map: React.FC<MapProps> = ({ size, geojsonPath, contributionData }) => {
         x={tooltip?.x ?? 0}
         y={tooltip?.y ?? 0}
         stateName={tooltip?.name ?? ""}
-        candidates={
-          tooltip?.stateCode && contributionData[tooltip.stateCode]
-            ? contributionData[tooltip.stateCode]
-            : []
-        }
+        candidates={(() => {
+          if (!tooltip?.stateCode) return [];
+          const raw = contributionData[tooltip.stateCode] ?? [];
+
+          // Exclude aggregate rows in the tooltip, but keep them
+          // in the underlying data for totals and other views.
+          const filtered = raw.filter(
+            (c) =>
+              c.CandidateName !== "All candidates" &&
+              c.CandidateName !== "Republicans" &&
+              c.CandidateName !== "Democrats"
+          );
+
+          const topFour = filtered.slice(0, 4);
+
+          return topFour.map((c) => ({
+            ...c,
+            CandidateName: candidateNamesById[c.CandidateID] || c.CandidateName,
+          }));
+        })()}
         visible={!!tooltip}
       />
     </div>
