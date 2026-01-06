@@ -2,6 +2,13 @@
   display: flex;
   justify-content: center;
   min-height: 100vh;
+  padding: 2rem 1.5rem;
+}
+
+.layout-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.75rem;
 }
 
 main {
@@ -11,6 +18,16 @@ main {
   flex-direction: column;
   align-items: stretch;
   gap: 1.5rem;
+}
+
+.app-brand {
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  word-spacing: 0.18em;
+  text-transform: none;
+  color: #6b7280;
+  margin-bottom: 0.3rem;
 }
 
 h1 {
@@ -150,6 +167,164 @@ h1 {
   margin: 0;
   display: flex;
   flex-direction: column;
+  gap: 0.15rem;
+}
+
+.sidepanel-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.candidate-listing {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border-left: 3px solid transparent;
+  padding-left: 0.4rem;
+}
+
+.candidate-listing-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.candidate-listing-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.candidate-listing-name {
+  color: #4b5563;
+  font-weight: 500;
+  font-size: 0.8rem;
+}
+
+.candidate-listing-party {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.candidate-listing-total {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.8rem;
+}
+
+.candidate-listing--sidebar {
+  gap: 0.65rem;
+}
+
+.candidate-listing--sidepanel {
+  gap: 0.25rem;
+}
+
+.candidate-listing-avatar {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #e5e7eb;
+}
+
+.candidate-listing-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sidebar-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sidebar-item {
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+}
+
+.sidebar-item-header {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  text-align: left;
+}
+
+.sidebar-item-header:hover {
+  background-color: rgba(249, 250, 251, 0.9);
+}
+
+.sidebar-item-primary {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-item-name {
+  font-weight: 500;
+}
+
+.sidebar-item-party {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.sidebar-item-total {
+  font-weight: 600;
+}
+
+.sidebar-donors {
+  padding: 0 0.75rem;
+  border-top: 1px solid #e5e7eb;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    max-height 160ms ease-out,
+    opacity 160ms ease-out,
+    padding-top 160ms ease-out,
+    padding-bottom 160ms ease-out;
+}
+
+.sidebar-donors.is-expanded {
+  padding-top: 0.5rem;
+  padding-bottom: 0.6rem;
+  max-height: 200px;
+  opacity: 1;
+  overflow-y: auto;
+}
+
+.sidebar-donors-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #9ca3af;
+  margin-bottom: 0.25rem;
+}
+
+.sidebar-donors-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.sidebar-donor-row {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
 }
 
@@ -449,9 +624,25 @@ h1 {
   margin: 0 0 0.75rem 0;
   font-size: 0.95rem;
   line-height: 1.6;
-  font-size: 1.1rem;
+  color: #374151;
 }
-*/ .sidebar {
-  flex: 1;
-  background-color: #f0f0f0;
+
+.intro-modal-note {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.intro-modal-button {
+  margin-top: 0.5rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  border: none;
+  background: #111827;
+  color: #f9fafb;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.intro-modal-button:hover {
+  background: #020617;
 }
