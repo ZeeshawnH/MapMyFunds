@@ -19,7 +19,7 @@ export const fetchContributionsWithCandidates = async (year?: number) => {
 
   try {
     const query = year ? `?year=${year}` : "";
-    const response = await axios.get(`http://${url}${path}${query}`);
+    const response = await axios.get(`https://${url}${path}${query}`);
     return response.data;
   } catch (error) {
     console.error(error);
