@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "./TooltipPopup.module.css";
 import type { Candidate } from "../../types/contributions";
-import CandidateListing from "./CandidateListing";
+import CandidateListing from "../Sidebar/CandidateListing";
 
 interface TooltipPopupProps {
   x: number;
@@ -30,7 +30,16 @@ const TooltipPopup: React.FC<TooltipPopupProps> = ({
       <div className={styles.stateName}>{stateName}</div>
       {candidates && candidates.length > 0 ? (
         <ul className={styles.recipientsList}>
-          {candidates.map((candidate) => <CandidateListing key={candidate.CandidateID} candidate={candidate} />)}
+          {candidates.map((candidate) => (
+            <li key={candidate.CandidateID} className={styles.recipientItem}>
+              <CandidateListing
+                name={candidate.CandidateName}
+                party={candidate.CandidateParty}
+                total={candidate.NetReceipts}
+                variant="sidepanel"
+              />
+            </li>
+          ))}
         </ul>
       ) : (
         <div className={styles.noData}>No data</div>
