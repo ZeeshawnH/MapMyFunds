@@ -16,6 +16,7 @@ const MapContainer = ({ year, onYearChange }: MapContainerProps) => {
     {} as StateContributions
   );
   const [isLoaded, setLoaded] = useState(false);
+  const [mapSize, setMapSize] = useState(850);
   const [candidateNamesById, setCandidateNamesById] = useState<
     Record<string, string>
   >({});
@@ -26,6 +27,22 @@ const MapContainer = ({ year, onYearChange }: MapContainerProps) => {
     isOther: boolean;
     centerPercent: number;
   }>(null);
+
+  // Keep the map sized so that sidebars + map fit within typical viewport widths
+  // by shrinking the map on narrower screens.
+  useEffect(() => {
+    const recomputeSize = () => {
+      const sidebarsWidth = 560; // two 280px sidebars
+      const paddingAndGaps = 120; // approximate padding + gutter space
+      const available = window.innerWidth - sidebarsWidth - paddingAndGaps;
+      const clamped = Math.max(520, Math.min(850, available));
+      setMapSize(Number.isFinite(clamped) ? clamped : 850);
+    };
+
+    recomputeSize();
+    window.addEventListener("resize", recomputeSize);
+    return () => window.removeEventListener("resize", recomputeSize);
+  }, []);
 
   useEffect(() => {
     setLoaded(false);
@@ -203,7 +220,7 @@ const MapContainer = ({ year, onYearChange }: MapContainerProps) => {
       )}
 
       <USMap
-        size={850}
+        size={mapSize}
         geojsonPath="/us-states.json"
         contributionData={contributionData}
         candidateNamesById={candidateNamesById}
