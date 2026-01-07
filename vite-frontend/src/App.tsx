@@ -39,8 +39,9 @@ function App() {
           <h1>How Each State Voted With Their Money</h1>
           <p className="app-description">
             This map summarizes the top recipients of presidential campaign
-            contributions in each state in 2024. Hover over a state to see which
-            candidates received the most contributions.{" "}
+            contributions in each state. Hover over a state to see which
+            candidates received the most contributions. Change the year using
+            the selector below.{" "}
             <button
               type="button"
               className="more-info-link"

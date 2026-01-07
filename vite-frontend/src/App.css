@@ -647,6 +647,15 @@ h1 {
   color: #6b7280;
 }
 
+.intro-modal-note a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.intro-modal-note a:hover {
+  color: #374151;
+}
+
 .intro-modal-button {
   margin-top: 0.5rem;
   padding: 0.4rem 0.9rem;
