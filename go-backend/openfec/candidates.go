@@ -10,7 +10,7 @@ import (
 
 const (
 	candidatePath        = "candidates/"
-	candidateQueryParams = "per_page=100&sort=name&sort_hide_null=true&sort_null_only=false&sort_nulls_last=false&api_key=mpes9XAfrLNioHVlF4mMflhFi1Kd8kfuZAiI4CFC"
+	candidateQueryParams = "per_page=100&sort=name&sort_hide_null=true&sort_null_only=false&sort_nulls_last=false"
 )
 
 func FetchCandidateDataFromFEC(page int, year int) (FECResponse[types.Candidate], error) {
