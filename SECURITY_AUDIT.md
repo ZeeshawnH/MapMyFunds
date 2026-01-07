@@ -95,15 +95,23 @@ git log --all --full-history --source -- "*.env"
 
 **Result:** No hardcoded credentials found in any source files.
 
-### 6. API Endpoints - ℹ️ INFORMATIONAL
+### 6. API Endpoints - ⚠️ INCONSISTENCY FOUND
 
-**Public API endpoint found:**
+**Hardcoded API endpoint found:**
 ```typescript
-// vite-frontend/src/api/fetchContributions.ts
+// vite-frontend/src/api/fetchContributions.ts, line 17
 const url = "api.zeeshawnh.com";
 ```
 
-**Status:** This is a public API endpoint, not a secret. The hardcoded value is acceptable for production deployment but could be improved by using environment variables for different environments (development, staging, production).
+**Status:** There is an inconsistency in the codebase. The `fetchContributionsByState` function properly uses environment variables (`import.meta.env.VITE_API_URL`), but the `fetchContributionsWithCandidates` function has a hardcoded production URL.
+
+**Impact:** Low - This is a public API endpoint, not a secret. However, it prevents the application from being easily configured for different environments (development, staging, production).
+
+**Recommendation:** Update line 17 of `fetchContributions.ts` to use the environment variable:
+```typescript
+const url = import.meta.env.VITE_API_URL;
+```
+And adjust the protocol logic as needed (http vs https).
 
 ### 7. Third-Party Resources - ℹ️ INFORMATIONAL
 
@@ -119,23 +127,24 @@ const url = "api.zeeshawnh.com";
 
 ## Recommendations
 
+### Issues to Address
+
+1. **Fix API URL Inconsistency (Medium Priority)**
+   - Location: `vite-frontend/src/api/fetchContributions.ts`, line 17
+   - Issue: Hardcoded production URL in `fetchContributionsWithCandidates` function
+   - Fix: Replace `const url = "api.zeeshawnh.com";` with `const url = import.meta.env.VITE_API_URL || "api.zeeshawnh.com";`
+   - Or refactor to handle protocol (http/https) based on environment
+
 ### Optional Improvements
 
-While no security issues were found, the following improvements could enhance security posture:
+While no critical security issues were found, the following improvements could enhance security posture:
 
 1. **Add Secrets Scanning to CI/CD**
-   - Consider adding tools like `gitleaks` or `trufflehog` to GitHub Actions
-   - Example workflow:
-     ```yaml
-     - name: Gitleaks
-       uses: gitleaks/gitleaks-action@v2
-     ```
+   - ✅ Already added via `.github/workflows/secrets-scan.yml`
+   - This will automatically scan for secrets on every push and pull request
 
-2. **Environment-based Configuration**
-   - Consider making the hardcoded API URL (`api.zeeshawnh.com`) configurable via environment variable for better environment separation
-
-3. **Documentation**
-   - Add a `.env.example` file for both backend and frontend to document required environment variables
+2. **Documentation**
+   - ✅ Already added `.env.example` files for both backend and frontend to document required environment variables
 
 ---
 
