@@ -134,6 +134,7 @@ And adjust the protocol logic as needed (http vs https).
    - Issue: Hardcoded production URL in `fetchContributionsWithCandidates` function
    - Fix: Replace `const url = "api.zeeshawnh.com";` with `const url = import.meta.env.VITE_API_URL || "api.zeeshawnh.com";`
    - Or refactor to handle protocol (http/https) based on environment
+   - **Note:** While this is not a security vulnerability (it's a public API endpoint), it should be fixed for consistency and to support different deployment environments.
 
 ### Optional Improvements
 
