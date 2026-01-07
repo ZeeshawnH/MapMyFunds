@@ -12,8 +12,8 @@
 }
 
 main {
-  width: 960px;
-  max-width: 100%;
+  flex: 1 1 0;
+  max-width: 960px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -42,6 +42,21 @@ h1 {
   color: #4b5563;
   line-height: 1.6;
   font-size: 1rem;
+}
+
+.more-info-link {
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: #2563eb;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.more-info-link:hover {
+  color: #1d4ed8;
 }
 
 .left-sidebar,
