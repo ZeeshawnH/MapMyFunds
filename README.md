@@ -18,6 +18,19 @@ Contribution totals are exposed through a Go-based REST API and consumed by a Vi
 
 MapMyFunds is hosted at [https://mapmyfunds.zeeshawnh.com](https://mapmyfunds.zeeshawnh.com) on an AWS EC2 instance and deployed via a GitHub Actions CI/CD pipeline.
 
+## Security
+
+This project follows security best practices for secret management:
+
+- ✅ All sensitive credentials (API keys, database URIs) are stored as environment variables
+- ✅ `.env` files are excluded from version control via `.gitignore`
+- ✅ GitHub Actions uses encrypted secrets for deployment credentials
+- ✅ Automated secrets scanning via GitHub Actions workflow
+
+For setup instructions, see `.env.example` files in `go-backend/` and `vite-frontend/` directories.
+
+For a detailed security audit report, see [SECURITY_AUDIT.md](./SECURITY_AUDIT.md).
+
 ## Notes
 
 This project visualizes aggregated contribution totals as reported by the Federal Election Commission. It does not attribute individual donor intent or model campaign finance relationships beyond the published aggregates.
